@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h3>Settings</h3>
+    <form method="POST">
+        <div class="form-group">
+            <label for="allow_ticket_visibility">Allow others to see my tickets:</label>
+            <input type="checkbox" id="allow_ticket_visibility" name="allow_ticket_visibility" {% if user.allow_ticket_visibility %}checked{% endif %}>
+        </div>
+
+        <div class="form-group">
+            <label for="first_name">First Name:</label>
+            <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}" class="form-control" required>
+        </div>
+
+        {% if user.role.name == 'Student' %}
+            <div class="form-group">
+                <label for="gpa">GPA:</label>
+                <input type="text" id="gpa" name="gpa" value="{{ user.gpa }}" class="form-control">
+            </div>
+        {% elif user.role.name == 'Teacher' %}
+            <div class="form-group">
+                <label for="faculty">Faculty:</label>
+                <select id="faculty" name="faculty" class="form-control">
+                    {% for faculty in faculties %}
+                    <option value="{{ faculty.id }}" {% if user.faculty_id == faculty.id %}selected{% endif %}>{{ faculty.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        {% endif %}
+
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+    </form>
+
+    <form action="{{ url_for('views.delete_account') }}" method="POST">
+        <button type="submit" class="btn btn-danger mt-3">Delete Account</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %} {% block title %}Compose Personal Ticket{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Compose Personal Ticket for {{ recipient.first_name }}</h1>
+    {% if original_ticket is defined %}
+    <p><strong>Reply to:</strong> "{{ original_ticket.title }}"</p>
+    {% endif %}
+    
+    <form action="{% if original_ticket is defined %}{{ url_for('views.reply_ticket', ticket_id=original_ticket.id) }}{% else %}{{ url_for('views.compose_ticket', user_id=recipient.id) }}{% endif %}" method="post" enctype="multipart/form-data">
+        <label for="title">Title:</label>
+        <input type="text" id="title" name="title" required><br><br>
+        <label for="content">Content:</label>
+        <textarea id="content" name="content" rows="4" cols="50" required></textarea><br><br>
+        <label for="category">Category:</label>
+        <select id="category" name="category">
+            <option value="assistance">Assistance</option>
+            <option value="idea">Idea</option>
+            <option value="complaint">Complaint</option>
+            <option value="else">Else</option>
+        </select><br><br>
+        <label for="image">Attach Image:</label>
+        <input type="file" id="image" name="image"><br><br>
+        <button type="submit">Submit</button>
+    </form>
+</div>
+
+
+{% endblock %}

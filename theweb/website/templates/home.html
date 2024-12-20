@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Home
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Display logged-in user's name -->
+    <h3>Welcome, {{ user.first_name }}!</h3>
+
+    <!-- Filter Form -->
+    <form action="{{ url_for('views.home') }}" method="get" class="filter-form">
+        <div class="form-group">
+            <label for="category">Filter by Category:</label>
+            <select id="category" name="category" class="form-control">
+                <option value="">All</option>
+                <option value="assistance" {% if request.args.get('category') == 'assistance' %}selected{% endif %}>Assistance</option>
+                <option value="idea" {% if request.args.get('category') == 'idea' %}selected{% endif %}>Idea</option>
+                <option value="complaint" {% if request.args.get('category') == 'complaint' %}selected{% endif %}>Complaint</option>
+                <option value="else" {% if request.args.get('category') == 'else' %}selected{% endif %}>Else</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Filter</button>
+    </form>
+
+    <!-- Display Tickets -->
+    {% for ticket in tickets %}
+    <div class="ticket my-4 p-4 bg-light border rounded">
+        <h5>{{ ticket.title }}</h5>
+
+        <p><strong>Posted by:</strong> <a href="{{ url_for('views.user_profile', user_id=ticket.creator.id) }}">{{ ticket.creator.first_name }}</a></p>
+
+        <div class="row">
+            {% if ticket.image %}
+            <div class="col-md-4">
+                <img src="{{ url_for('static', filename='uploads/' ~ ticket.image) }}" alt="Ticket Image" class="img-fluid img-thumbnail">
+            </div>
+            <div class="col-md-8">
+                <p>{{ ticket.content }}</p>
+            </div>
+            {% else %}
+            <div class="col-md-12">
+                <p>{{ ticket.content }}</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <p><strong>Category:</strong> {{ ticket.category }}</p>
+        <p><strong>Date:</strong> {{ ticket.date.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+
+        <!-- Upvote Button -->
+        <p><strong>Upvotes:</strong> {{ ticket.upvotes }}</p>
+        {% if ticket.id not in upvoted_tickets %}
+        <form action="{{ url_for('views.upvote_ticket', ticket_id=ticket.id) }}" method="POST" style="display:inline;">
+            <button type="submit" class="btn btn-success btn-sm">Upvote</button>
+        </form>
+        {% else %}
+        <button class="btn btn-secondary btn-sm" disabled>Already Upvoted</button>
+        {% endif %}
+
+        <!-- Reply Button -->
+        <a href="{{ url_for('views.reply_ticket', ticket_id=ticket.id) }}" class="btn btn-secondary btn-sm">Reply</a>
+
+        <!-- Delete and Edit buttons for Admins and Super Admins -->
+        {% if user.role.name == 'Admin' or user.role.name == 'Super Admin' %}
+        <form action="{{ url_for('views.delete_ticket', ticket_id=ticket.id) }}" method="POST" style="display:inline;">
+            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+        </form>
+        {% endif %}
+        {% if user.role.name == 'Super Admin' %}
+        <a href="{{ url_for('views.edit_ticket', ticket_id=ticket.id) }}" class="btn btn-primary btn-sm">Edit</a>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

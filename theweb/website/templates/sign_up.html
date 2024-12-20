@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Sign Up{% endblock %}
+
+{% block content %}
+<form method="POST">
+    <h3 align="center">Sign Up</h3>
+    <div class="form-group">
+        <label for="role">Role</label>
+        <select id="role" name="role" class="form-control" required onchange="toggleRoleFields()">
+            <option value="">Select Role</option>
+            {% for role in roles %}
+            <option value="{{ role.name }}">{{ role.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" class="form-control" id="email" name="email" placeholder="Enter email" required>
+    </div>
+    <div class="form-group">
+        <label for="firstName">First Name</label>
+        <input type="text" class="form-control" id="firstName" name="firstName" placeholder="Enter first name" required>
+    </div>
+    <div class="form-group">
+        <label for="password1">Password</label>
+        <input type="password" class="form-control" id="password1" name="password1" placeholder="Enter password" required>
+    </div>
+    <div class="form-group">
+        <label for="password2">Confirm Password</label>
+        <input type="password" class="form-control" id="password2" name="password2" placeholder="Confirm password" required>
+    </div>
+    <div>
+        <div class="form-group">
+            <label for="faculty">Faculty</label>
+            <select id="faculty" name="faculty" class="form-control" required onchange="updateDepartments()">
+                <option value="">Select Faculty</option>
+                {% for faculty in faculties %}
+                <option value="{{ faculty.id }}">{{ faculty.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div id="departmentField" class="form-group" style="display: none;">
+            <label for="department">Department</label>
+            <select id="department" name="department" class="form-control">
+                <option value="">Select Department</option>
+                <!-- Departments will be populated dynamically -->
+            </select>
+        </div>
+    </div>
+    <div id="studentFields" style="display: none;">
+        <div class="form-group">
+            <label for="gpa">GPA</label>
+            <input type="text" class="form-control" id="gpa" name="gpa" placeholder="Enter GPA">
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Sign Up</button>
+</form>
+
+<script>
+    function toggleRoleFields() {
+        const role = document.getElementById('role').value;
+        const studentFields = document.getElementById('studentFields');
+        const departmentField = document.getElementById('departmentField');
+
+        if (role === 'Student') {
+            studentFields.style.display = 'block';
+            departmentField.style.display = 'block';
+        } else {
+            studentFields.style.display = 'none';
+            departmentField.style.display = 'none';
+        }
+    }
+
+    function updateDepartments() {
+        const facultyId = document.getElementById('faculty').value;
+        const departmentSelect = document.getElementById('department');
+        
+        fetch(`/get_departments/${facultyId}`)
+            .then(response => response.json())
+            .then(data => {
+                departmentSelect.innerHTML = '<option value="">Select Department</option>';
+                data.departments.forEach(department => {
+                    const option = document.createElement('option');
+                    option.value = department.id;
+                    option.textContent = department.name;
+                    departmentSelect.appendChild(option);
+                });
+            });
+    }
+</script>
+{% endblock %}

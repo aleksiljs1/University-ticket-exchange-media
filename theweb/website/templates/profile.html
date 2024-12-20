@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<div class="container">
+  <!-- Profile Header -->
+  <div class="row justify-content-center my-4">
+    <div class="col-md-8">
+      <div class="card text-center">
+        <div class="card-body">
+          <h3 class="card-title">{{ user.first_name }}</h3>
+          <p class="card-text">
+            <strong>Role:</strong> 
+            {% if user.role.name == 'Admin' %}
+                Moderator
+            {% elif user.role.name == 'Super Admin' %}
+                Prime Moderator
+            {% elif user.role.name == 'Desk Support' %}
+                Support
+            {% else %}
+                {{ user.role.name }}
+            {% endif %}
+          </p>
+          <p class="card-text"><strong>Email:</strong> {{ user.email }}</p>
+          {% if user.role.name == 'Teacher' %}
+            <p class="card-text"><strong>Faculty:</strong> {{ user.faculty.name if user.faculty else 'N/A' }}</p>
+          {% else %}
+            <p class="card-text"><strong>Faculty:</strong> {{ user.faculty.name if user.faculty else 'N/A' }}</p>
+            <p class="card-text"><strong>Department:</strong> {{ user.department.name if user.department else 'N/A' }}</p>
+            <p class="card-text">
+              <strong>GPA:</strong> 
+              <span class="badge badge-danger">{{ user.gpa if user.gpa else 'N/A' }}</span>
+            </p>
+          {% endif %}
+          <a href="{{ url_for('views.settings') }}" class="btn btn-secondary">Settings</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tickets Section -->
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <h4 class="my-4">Your Tickets</h4>
+      {% if tickets %}
+        {% for ticket in tickets %}
+        <div class="card mb-4">
+          <div class="card-body">
+            <h5 class="card-title">{{ ticket.title }}</h5>
+            {% if ticket.original_ticket %}
+            <p class="card-subtitle mb-2 text-muted"><em>Reply to "{{ ticket.original_ticket.title }}"</em></p>
+            {% endif %}
+            <p class="card-text">{{ ticket.content }}</p>
+            <p class="card-text">
+              <strong>Category:</strong> {{ ticket.category }} <br>
+              <strong>Date:</strong> {{ ticket.date.strftime('%Y-%m-%d %H:%M:%S') }} <br>
+              <strong>Upvotes:</strong> {{ ticket.upvotes }}
+            </p>
+            {% if ticket.image %}
+            <img src="{{ url_for('static', filename='uploads/' ~ ticket.image) }}" alt="Ticket Image" class="img-fluid img-thumbnail mb-2">
+            {% endif %}
+            <div class="d-flex justify-content-between">
+              <div>
+                <form action="{{ url_for('views.delete_ticket', ticket_id=ticket.id) }}" method="POST" style="display:inline;">
+                  <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                </form>
+                <a href="{{ url_for('views.edit_ticket', ticket_id=ticket.id) }}" class="btn btn-primary btn-sm">Edit</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <p>No tickets found.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

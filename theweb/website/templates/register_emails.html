@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}
+    Register Emails
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h3>Register Allowed Emails</h3>
+    <form method="POST">
+        <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" class="form-control" id="email" name="email" placeholder="Enter email to allow sign up" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Register Email</button>
+    </form>
+
+    <h4>Allowed Emails</h4>
+    <ul>
+        {% for email in allowed_emails %}
+        <li>{{ email.email }}
+            <form action="{{ url_for('views.delete_allowed_email', email_id=email.id) }}" method="POST" style="display:inline;">
+                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
